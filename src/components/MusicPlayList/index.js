@@ -1,17 +1,18 @@
 import {Component} from 'react'
-import MusicItem from '../MusicItem'
+import {BsSearch} from 'react-icons/bs'
+import PlayList from '../PlayList'
 
 import {
+  BgImageContainer,
   BgContainer,
-  ArtistBg,
-  ArtistName,
-  ArtistInfo,
-  PlayListContainer,
-  PlayListHeading,
-  SearchInput,
-  MusicList,
-  EmptyContainer,
-  NoSongsText,
+  Heading,
+  Text,
+  Container,
+  InputContainer,
+  Input,
+  Icon,
+  SongListContainer,
+  NoSongsFound,
 } from './styledComponents'
 
 const initialTracksList = [
@@ -98,64 +99,55 @@ const initialTracksList = [
 ]
 
 class MusicPlayList extends Component {
-  state = {
-    searchInput: '',
-    playList: initialTracksList,
-  }
+  state = {songsList: initialTracksList, searchInput: ''}
 
-  onChangeSearchInput = event => {
+  onChangeInput = event => {
     this.setState({searchInput: event.target.value})
   }
 
-  onClickDeleteTrack = id => {
-    const {playList} = this.state
-    const updatedPlayList = playList.filter(each => each.id !== id)
-    this.setState({playList: updatedPlayList})
+  onClickDelete = id => {
+    this.setState(prevState => ({
+      songsList: prevState.songsList.filter(eachSong => eachSong.id !== id),
+    }))
   }
 
-  renderNoSongsFoundView = () => (
-    <EmptyContainer>
-      <NoSongsText>No Songs Found</NoSongsText>
-    </EmptyContainer>
-  )
-
   render() {
-    const {playList, searchInput} = this.state
-    const searchResults = playList.filter(eachTrack =>
-      eachTrack.name.toLowerCase().includes(searchInput.toLowerCase()),
+    const {songsList, searchInput} = this.state
+    const updatedSongsList = songsList.filter(eachSongItem =>
+      eachSongItem.name.toLowerCase().includes(searchInput.toLowerCase()),
     )
+
     return (
-      <BgContainer>
-        <ArtistBg data-testid="artist-details">
-          <ArtistName>
-            Ed Sheeran
-            <br />
-            <ArtistInfo>Singer</ArtistInfo>
-          </ArtistName>
-        </ArtistBg>
-        <PlayListContainer>
-          <PlayListHeading>Songs Playlist</PlayListHeading>
-          <SearchInput
-            type="search"
-            value={searchInput}
-            placeholder="Search"
-            onChange={this.onChangeSearchInput}
-          />
-        </PlayListContainer>
-        {searchResults.length === 0 ? (
-          this.renderNoSongsFoundView()
-        ) : (
-          <MusicList>
-            {searchResults.map(eachItem => (
-              <MusicItem
-                key={eachItem.id}
-                MusicItemDetails={eachItem}
-                onClickDeleteTrack={this.onClickDeleteTrack}
-              />
-            ))}
-          </MusicList>
-        )}
-      </BgContainer>
+      <>
+        <BgImageContainer data-testid="artist-details">
+          <Heading>Ed Sheeran</Heading>
+          <Text>Singer</Text>
+        </BgImageContainer>
+        <BgContainer>
+          <Container>
+            <Heading>Songs Playlist</Heading>
+            <InputContainer onChange={this.onChangeInput}>
+              <Input type="search" value={searchInput} placeholder="Search" />
+              <Icon>
+                <BsSearch />
+              </Icon>
+            </InputContainer>
+          </Container>
+          <SongListContainer>
+            {updatedSongsList.length === 0 ? (
+              <NoSongsFound>No Songs Found</NoSongsFound>
+            ) : (
+              updatedSongsList.map(eachSong => (
+                <PlayList
+                  key={eachSong.id}
+                  songListDetails={eachSong}
+                  onClickDelete={this.onClickDelete}
+                />
+              ))
+            )}
+          </SongListContainer>
+        </BgContainer>
+      </>
     )
   }
 }
